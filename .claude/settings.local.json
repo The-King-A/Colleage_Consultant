@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(npm install *)",
+      "Bash(mkdir -p \"E:\\\\All_Projects_done\\\\Consultant\\\\Consultant\\\\Front\\\\Consultant\\\\src\\\\components\\\\home\")",
+      "Bash(mkdir -p \"E:\\\\All_Projects_done\\\\Consultant\\\\Consultant\\\\Front\\\\Consultant\\\\src\\\\composables\")",
+      "Bash(npx vite *)",
+      "Bash(claude doctor *)"
+    ]
+  }
+}

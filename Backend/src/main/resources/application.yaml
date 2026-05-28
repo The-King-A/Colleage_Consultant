@@ -1,0 +1,76 @@
+# 提交到 GitHub 的安全版本：真实密钥请写在 application-local.yaml（已 gitignore）
+# 模板见 application.yaml.example
+
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: https://api.deepseek.com/v1
+      api-key: ${DEEPSEEK_API_KEY:}
+      model-name: deepseek-v4-flash
+      log-requests: false
+      log-responses: false
+    streaming-chat-model:
+      base-url: https://api.deepseek.com/v1
+      api-key: ${DEEPSEEK_API_KEY:}
+      model-name: deepseek-v4-flash
+      log-requests: false
+      log-responses: false
+    embedding-model:
+      base-url: https://api.siliconflow.cn/v1
+      api-key: ${SILICONFLOW_API_KEY:}
+      model-name: BAAI/bge-large-zh-v1.5
+      log-requests: false
+      log-responses: false
+      max-segments-per-batch: 10
+  community:
+    redis:
+      host: localhost
+      port: 6379
+
+logging:
+  level:
+    dev.langchain4j: info
+
+spring:
+  config:
+    import: optional:classpath:application-local.yaml
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  datasource:
+    url: jdbc:mysql://localhost:3306/volunteer_assistant?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.isoft.consultant.entity
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+consultant:
+  data:
+    run-sql-on-startup: false
+    import-undergraduate-schools: false
+    seed-sample-admission-scores: false
+
+jwt:
+  secret: ${JWT_SECRET:change-me-use-long-random-string}
+  expiration: 86400000
+
+tavily:
+  api-key: ${TAVILY_API_KEY:}
+  base-url: https://api.tavily.com

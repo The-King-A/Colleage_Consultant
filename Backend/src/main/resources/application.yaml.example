@@ -1,0 +1,78 @@
+# 复制为 application-local.yaml（推荐）或 application.yaml 后填入真实配置
+# application-local.yaml 已在 .gitignore 中，不会上传到 GitHub
+#
+#   copy application.yaml.example application-local.yaml
+
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: https://api.deepseek.com/v1
+      api-key: ${DEEPSEEK_API_KEY:your-deepseek-api-key}
+      model-name: deepseek-v4-flash
+      log-requests: false
+      log-responses: false
+    streaming-chat-model:
+      base-url: https://api.deepseek.com/v1
+      api-key: ${DEEPSEEK_API_KEY:your-deepseek-api-key}
+      model-name: deepseek-v4-flash
+      log-requests: false
+      log-responses: false
+    embedding-model:
+      base-url: https://api.siliconflow.cn/v1
+      api-key: ${SILICONFLOW_API_KEY:your-siliconflow-api-key}
+      model-name: BAAI/bge-large-zh-v1.5
+      log-requests: false
+      log-responses: false
+      max-segments-per-batch: 10
+  community:
+    redis:
+      host: localhost
+      port: 6379
+
+logging:
+  level:
+    dev.langchain4j: info
+
+spring:
+  config:
+    import: optional:classpath:application-local.yaml
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  datasource:
+    url: jdbc:mysql://localhost:3306/volunteer_assistant?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:your-mysql-password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.isoft.consultant.entity
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+consultant:
+  data:
+    run-sql-on-startup: false
+    import-undergraduate-schools: false
+    seed-sample-admission-scores: false
+
+jwt:
+  secret: ${JWT_SECRET:please-change-to-a-long-random-string-at-least-32-chars}
+  expiration: 86400000
+
+tavily:
+  api-key: ${TAVILY_API_KEY:your-tavily-api-key}
+  base-url: https://api.tavily.com

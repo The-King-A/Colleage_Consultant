@@ -1,0 +1,39 @@
+# ===== 构建产物 =====
+Backend/target/
+Front/Consultant/node_modules/
+Front/Consultant/dist/
+Services/report-service/node_modules/
+
+# ===== 本地密钥（切勿提交）=====
+Backend/src/main/resources/application-local.yaml
+.env
+.env.local
+.env.*.local
+!.env.example
+Services/analytics-service/.env
+!Services/analytics-service/.env.example
+
+# 若仍使用含真实密钥的 application.yaml，取消下一行注释：
+# Backend/src/main/resources/application.yaml
+
+# ===== IDE / 系统 =====
+.idea/
+*.iml
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ===== 日志与临时文件 =====
+*.log
+logs/
+*.tmp
+*.bak
+
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+
+# ===== RAG 知识库（单文件超过 GitHub 100MB 限制，请本地自行放置）=====
+Backend/src/main/resources/content/2023河南理科招生之友.pdf
