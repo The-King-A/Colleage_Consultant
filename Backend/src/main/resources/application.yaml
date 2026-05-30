@@ -31,6 +31,9 @@ logging:
   level:
     dev.langchain4j: info
 
+server:
+  port: 8080
+
 spring:
   config:
     import: optional:classpath:application-local.yaml

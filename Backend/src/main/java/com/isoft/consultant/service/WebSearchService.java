@@ -1,12 +1,16 @@
 package com.isoft.consultant.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -15,22 +19,24 @@ public class WebSearchService {
 
     private static final Logger log = LoggerFactory.getLogger(WebSearchService.class);
 
-    private final RestClient restClient;
+    private final HttpClient httpClient;
     private final String apiKey;
+    private final String baseUrl;
+    private final ObjectMapper objectMapper;
 
     public WebSearchService(
             @Value("${tavily.base-url}") String baseUrl,
             @Value("${tavily.api-key}") String apiKey) {
         this.apiKey = apiKey;
-        this.restClient = RestClient.create(baseUrl);
+        this.baseUrl = baseUrl;
+        this.objectMapper = new ObjectMapper();
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(15))
+                .build();
     }
 
-    /**
-     * 执行联网搜索并返回格式化的上下文
-     */
     @SuppressWarnings("unchecked")
     public String search(String userQuery) {
-        // 优化搜索词：加入时间和关键词限定
         String searchQuery = buildSearchQuery(userQuery);
 
         try {
@@ -46,17 +52,23 @@ public class WebSearchService {
                     "exclude_domains", List.of()
             );
 
-            Map<String, Object> response = restClient.post()
-                    .uri("/search")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .body(Map.class);
+            String jsonBody = objectMapper.writeValueAsString(body);
 
-            if (response == null) {
-                log.warn("联网搜索返回null");
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/search"))
+                    .header("Content-Type", "application/json")
+                    .timeout(Duration.ofSeconds(30))
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                log.error("联网搜索失败: HTTP {} — {}", response.statusCode(), response.body());
                 return buildEmptyResult();
             }
+
+            Map<String, Object> respBody = objectMapper.readValue(response.body(), Map.class);
 
             StringBuilder sb = new StringBuilder();
             sb.append("\n\n");
@@ -66,14 +78,12 @@ public class WebSearchService {
             sb.append("如果搜索结果不足以回答用户问题，请如实告知，禁止编造数据。\n");
             sb.append("══════════════════════════════════════\n\n");
 
-            // Tavily AI 摘要
-            String answer = (String) response.get("answer");
+            String answer = (String) respBody.get("answer");
             if (answer != null && !answer.isBlank()) {
                 sb.append("📝 搜索结果摘要：\n").append(answer).append("\n\n");
             }
 
-            // 各条搜索结果
-            List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
+            List<Map<String, Object>> results = (List<Map<String, Object>>) respBody.get("results");
             if (results != null && !results.isEmpty()) {
                 int count = 0;
                 for (Map<String, Object> r : results) {
@@ -81,7 +91,6 @@ public class WebSearchService {
                     String title = (String) r.getOrDefault("title", "");
                     String url = (String) r.getOrDefault("url", "");
                     String content = (String) r.getOrDefault("content", "");
-                    // 截断过长内容，保留关键信息
                     if (content.length() > 800) {
                         content = content.substring(0, 800) + "...";
                     }
@@ -105,23 +114,18 @@ public class WebSearchService {
             return result;
 
         } catch (Exception e) {
-            log.error("联网搜索失败: {}", e.getMessage());
+            log.error("联网搜索失败: {}", e.toString());
             return buildEmptyResult();
         }
     }
 
-    /**
-     * 优化搜索查询词
-     */
     private String buildSearchQuery(String userQuery) {
-        // 如果用户问题已经包含年份/时间，直接使用
         boolean hasYear = userQuery.matches(".*(20\\d{2}|今年|最新|近年).*");
 
         if (hasYear) {
             return userQuery + " 高考 志愿填报";
         }
 
-        // 自动加上"最新"关键词提高时效性
         if (userQuery.contains("分数线") || userQuery.contains("录取") || userQuery.contains("分数")) {
             return userQuery + " 2025 2024 最新";
         }

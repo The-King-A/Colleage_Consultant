@@ -6,7 +6,24 @@
       "Bash(mkdir -p \"E:\\\\All_Projects_done\\\\Consultant\\\\Consultant\\\\Front\\\\Consultant\\\\src\\\\components\\\\home\")",
       "Bash(mkdir -p \"E:\\\\All_Projects_done\\\\Consultant\\\\Consultant\\\\Front\\\\Consultant\\\\src\\\\composables\")",
       "Bash(npx vite *)",
-      "Bash(claude doctor *)"
+      "Bash(claude doctor *)",
+      "Bash(java -version)",
+      "Bash(mvn -version)",
+      "Bash(npm -v)",
+      "Bash(mvn compile *)",
+      "Bash(mvn spring-boot:run)",
+      "Bash(node *)",
+      "Bash(docker exec redis *)",
+      "Bash(mysql --version)",
+      "Bash(sc query *)",
+      "Bash(netstat -ano)",
+      "Bash(mysql *)",
+      "Bash(docker stop docker-nginx-1 *)",
+      "Bash(curl *)",
+      "WebFetch(domain:docs.tavily.com)",
+      "Bash(git remote *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
